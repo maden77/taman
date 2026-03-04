@@ -120,6 +120,34 @@ function resizeCanvas() {
     canvas.height = canvas.parentElement.clientHeight;
     renderGarden();
 }
+// Tambah fungsi ini di initCanvas(), setelah resizeCanvas():
+function centerCameraToGarden() {
+    if (!gardenData.plants.length) return;
+    
+    // Cari rata-rata posisi semua tanaman
+    let sumX = 0, sumY = 0;
+    gardenData.plants.forEach(p => {
+        sumX += p.x;
+        sumY += p.y;
+    });
+    
+    const centerX = sumX / gardenData.plants.length;
+    const centerY = sumY / gardenData.plants.length;
+    
+    // Set camera ke tengah
+    camera.x = canvas.width/2 - centerX * camera.zoom;
+    camera.y = canvas.height/2 - centerY * camera.zoom;
+    
+    renderGarden();
+}
+
+// Panggil di initCanvas():
+function initCanvas() {
+    // ... kode lama ...
+    resizeCanvas();
+    centerCameraToGarden(); // <-- TAMBAHIN INI!
+    // ... sisanya ...
+}
 
 // ==================== EVENT LISTENERS ====================
 function setupEventListeners() {
