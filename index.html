@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 Digital Garden - Mind Map Hidup</title>
+    
+    <!-- Font & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js untuk visualisasi -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="logo">🌱</span>
+            <span class="brand-name">Mind Garden</span>
+        </div>
+        <div class="nav-controls">
+            <button class="btn-view active" data-view="cosmic">
+                <i class="fas fa-globe"></i> Kosmik
+            </button>
+            <button class="btn-view" data-view="normal">
+                <i class="fas fa-tree"></i> Normal
+            </button>
+            <button class="btn-view" data-view="micro">
+                <i class="fas fa-microscope"></i> Mikro
+            </button>
+            <div class="time-slider-container">
+                <i class="fas fa-clock"></i>
+                <input type="range" id="timeSlider" min="0" max="12" value="12" step="1">
+                <span id="timeDisplay">Des 2024</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <!-- SIDEBAR KIRI - STATS -->
+        <aside class="sidebar-left">
+            <div class="garden-stats">
+                <h3>🌿 Taman Statistik</h3>
+                <div class="stat-item">
+                    <span>Total Tanaman:</span>
+                    <strong id="totalPlants">0</strong>
+                </div>
+                <div class="stat-item">
+                    <span>Akar Aktif:</span>
+                    <strong id="totalRoots">0</strong>
+                </div>
+                <div class="stat-item">
+                    <span>Koneksi Kuat:</span>
+                    <strong id="strongConnections">0</strong>
+                </div>
+                <div class="strength-meter">
+                    <div class="meter-label">Kesehatan Taman</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="gardenHealth" style="width: 85%">85%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="activity-feed">
+                <h4>📡 Aktivitas Terkini</h4>
+                <ul id="activityList">
+                    <li><span class="time">2m</span>🌱 React bertunas baru</li>
+                    <li><span class="time">15m</span>🔗 Koneksi JavaScript → Node.js menguat</li>
+                    <li><span class="time">1j</span>💧 JavaScript disiram</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- MAIN CANVAS - GARDEN VIEW -->
+        <main class="garden-view">
+            <canvas id="gardenCanvas"></canvas>
+            
+            <!-- TOOLTIP KUSTOM -->
+            <div id="tooltip" class="tooltip hidden">
+                <div class="tooltip-header">
+                    <span id="tooltipIcon">🌱</span>
+                    <span id="tooltipTitle">Loading...</span>
+                </div>
+                <div class="tooltip-body">
+                    <p id="tooltipDesc"></p>
+                    <div class="tooltip-stats">
+                        <span>💪 Kekuatan: <span id="tooltipStrength">0</span></span>
+                        <span>📅 Usia: <span id="tooltipAge">0</span></span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- SIDEBAR KANAN - DETAIL -->
+        <aside class="sidebar-right" id="detailPanel">
+            <div class="detail-header">
+                <h3 id="detailTitle">🔍 Pilih Tanaman</h3>
+                <button id="closeDetail" class="btn-icon"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="detailContent" class="detail-content">
+                <p class="hint">Klik tanaman untuk lihat detail</p>
+            </div>
+            <div class="detail-actions" id="detailActions">
+                <!-- Aksi akan muncul sesuai tanaman -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- CONTROL PANEL BAWAH -->
+    <div class="control-panel">
+        <div class="panel-group">
+            <button class="btn-primary" id="addIdeaBtn">
+                <i class="fas fa-plus"></i> Tanam Ide Baru
+            </button>
+            <button class="btn-secondary" id="waterAllBtn">
+                <i class="fas fa-shower"></i> Siram Semua
+            </button>
+            <button class="btn-secondary" id="findConnectionsBtn">
+                <i class="fas fa-link"></i> Cari Koneksi Baru
+            </button>
+            <button class="btn-accent" id="mindStormBtn">
+                <i class="fas fa-bolt"></i> Mind Storm!
+            </button>
+        </div>
+        <div class="view-controls">
+            <label class="switch">
+                <input type="checkbox" id="showRoots" checked>
+                <span class="slider"></span>
+                <span class="label">Tampilkan Akar</span>
+            </label>
+            <label class="switch">
+                <input type="checkbox" id="showLabels" checked>
+                <span class="slider"></span>
+                <span class="label">Label</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- MODAL UNTUK TAMBAH IDE -->
+    <div id="ideaModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🌱 Tanam Ide Baru</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="newIdeaForm">
+                    <div class="form-group">
+                        <label>Nama Ide:</label>
+                        <input type="text" id="ideaName" placeholder="Contoh: Belajar Three.js" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi:</label>
+                        <textarea id="ideaDesc" rows="3" placeholder="Apa yang mau dipelajari?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori:</label>
+                        <select id="ideaCategory">
+                            <option value="frontend">Frontend</option>
+                            <option value="backend">Backend</option>
+                            <option value="database">Database</option>
+                            <option value="devops">DevOps</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="other">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tahap Awal:</label>
+                        <div class="stage-selector">
+                            <label><input type="radio" name="stage" value="seed" checked> 🌱 Bibit</label>
+                            <label><input type="radio" name="stage" value="sprout"> 🌿 Tunas</label>
+                            <label><input type="radio" name="stage" value="growing"> 🌳 Tumbuh</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Koneksi dengan ide yang ada:</label>
+                        <div id="existingConnections" class="checkbox-group">
+                            <!-- Akan diisi JS -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelModal">Batal</button>
+                <button class="btn-primary" id="saveIdea">Tanam!</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
